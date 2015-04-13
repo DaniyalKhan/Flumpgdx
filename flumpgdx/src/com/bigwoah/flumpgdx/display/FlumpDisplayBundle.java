@@ -48,25 +48,15 @@ public abstract class FlumpDisplayBundle extends FlumpDisplay {
 	void update(int frame) {
 		for (FlumpDisplay display: displayLayers) {
 			display.update(frame);
-//			if (reference != null) {
-//				getAttributes(this, 0);
-//
-//				//TODO check that this still works
-//				pos[0].set(xPivot + xLoc, -xPivot + yLoc);
-//				pos[1].set(xPivot + xLoc, -xPivot + yLoc);
-//				pos[2].set(xPivot + xLoc, -xPivot + yLoc);
-//				pos[3].set(xPivot + xLoc, -xPivot + yLoc);
-//
-////				bindToPivots(display);
-////				display.x1 += xLoc;
-////				display.y1 += yLoc;
-////				display.x2 += xLoc;
-////				display.y2 += yLoc;
-////				display.x3 += xLoc;
-////				display.y3 += yLoc;
-////				display.x4 += xLoc;
-////				display.y4 += yLoc;
-//			}
+			if (reference != null) { //Animation layer
+				getAttributes(this, 0);
+				/* TODO if animation recursively applies transformations, need to apply them here
+				(right now we only handle translation) */
+				display.pos[0].add(xPivot + xLoc, -yPivot + yLoc);
+				display.pos[1].add(xPivot + xLoc, -yPivot + yLoc);
+				display.pos[2].add(xPivot + xLoc, -yPivot + yLoc);
+				display.pos[3].add(xPivot + xLoc, -yPivot + yLoc);
+			}
 		}
 	}
 
