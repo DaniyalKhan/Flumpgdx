@@ -19,7 +19,9 @@ public class MovieMaker {
 			String firstKeyFrameName = layer.keyframes[0].ref;
 			if (firstKeyFrameName != null && file.animations.containsKey(firstKeyFrameName)) {
 				//the layer is a reference to another animation, recursively create it here
-				animation.addDisplay(make(file, firstKeyFrameName, layer));
+				FlumpAnimation newAnim = make(file, firstKeyFrameName, layer);
+				newAnim.setLayerTransform();
+				animation.addDisplay(newAnim);
 			} else if (firstKeyFrameName != null) {
 				//regular layer, add it to the animation
 				animation.addDisplay(new FlumpDisplay(layer));

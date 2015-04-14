@@ -18,17 +18,15 @@ public class FlumpDisplay {
 	protected static float xPivot, yPivot, xSkew, ySkew, xScale, yScale, xLoc, yLoc; 
 	
 	protected Vector2[] pos = new Vector2[4];
-	
 	private int keyframe; //current keyframe
 	protected int numFrames;
-	
 	boolean overElapsed = false;
-	
+
 	protected final FlumpLayer reference;
 		
 	public FlumpDisplay(FlumpLayer layer) {
 		this.reference = layer;
-		this.numFrames = maxFrameCount();
+		this.numFrames = -1;
 		for (int i = 0; i < pos.length; i++) {
 			pos[i] = new Vector2();
 		}
@@ -37,25 +35,18 @@ public class FlumpDisplay {
 	protected FlumpDisplayTexture getDisplayTexture() {
 		return TextureCache.obtain().get(reference.keyframes[keyframe].ref);
 	}
-	
+
+	/**
+	 * Get the duration of this layer by summing all the frame durations
+	 * @return The sum of the frame durations for this layer
+	 */
 	public int maxFrameCount() {
-		int numFrames = 0;
-		for (FlumpKeyFrame keyframe: reference.keyframes) {
-			numFrames += keyframe.duration;
+		if (numFrames < 0) {
+			for (FlumpKeyFrame keyframe : reference.keyframes) {
+				numFrames += keyframe.duration;
+			}
 		}
 		return numFrames;
-	}
-	
-	protected void applyTransformation(Matrix3 transformation) {
-		for (int i = 0; i < pos.length; i++) {
-			pos[i].mul(transformation);
-		}
-	}
-	
-	protected void applyTranslation(Vector2 translation) {
-		for (int i = 0; i < pos.length; i++) {
-			pos[i].add(translation);
-		}
 	}
 	
 	protected static void getAttributes(FlumpDisplay source, float interpolation) {
@@ -87,7 +78,7 @@ public class FlumpDisplay {
 		}
 	}
 	
-	void update(int frame) {
+	protected void update(int frame, Matrix3 transform) {
 		if (reference == null) throw new IllegalStateException("FlumpDisplayLayer is empty on update!");
 		keyframe = 0;
 		overElapsed = frame > maxFrameCount();
@@ -119,49 +110,40 @@ public class FlumpDisplay {
 		float width = display.getRegionWidth();
 		float height = display.getRegionHeight();
 		getAttributes(this, interpolation);
-		yPivot += height;
-		
 		float sx = xPivot;
-		float swx = (xPivot + width);
+		float swx = xPivot + width;
+		float shy = -(yPivot + height);
 		float sy = -yPivot;
-		float shy = (-yPivot + height);
-		
 		if (xScale != 1 || yScale != 1) { 
 			sx *= xScale;
 			swx *= xScale;
-			sy *= yScale;
 			shy *= yScale;
+			sy *= yScale;
 		}
-		
-		pos[0].set(sx, sy);
-		pos[1].set(sx, shy);
-		pos[2].set(swx, shy);
-		pos[3].set(swx, sy);
-		
+		pos[0].set(sx, shy);
+		pos[1].set(sx, sy);
+		pos[2].set(swx, sy);
+		pos[3].set(swx, shy);
 		if (xSkew != 0 || ySkew != 0) {
 			float cosx =  MathUtils.cos(xSkew);
 			float sinx =  MathUtils.sin(xSkew);
 			float cosy;
 			float siny;
-			
 			if (xSkew != ySkew) {
 				cosy =  MathUtils.cos(ySkew);
-				siny = -MathUtils.sin(ySkew);
+				siny = MathUtils.sin(ySkew);
 			} else {
-				siny = -sinx;
+				siny = sinx;
 				cosy = cosx;
 			}
-			
-			for (int i = 0; i < pos.length; i++) {
-				pos[i].set(cosy * pos[i].x + sinx * pos[i].y, siny * pos[i].x + cosx * pos[i].y);
+			for (Vector2 p: pos) {
+				p.set(cosy * p.x + sinx * p.y, - siny * p.x + cosx * p.y);
 			}
 		}
-		
-		pos[0].add(xLoc, yLoc);
-		pos[1].add(xLoc, yLoc);
-		pos[2].add(xLoc, yLoc);
-		pos[3].add(xLoc, yLoc);
-		
+		for (Vector2 p: pos) {
+			p.add(xLoc, yLoc).mul(transform);
+		}
+
 		/****************************************************
 		 * Matrix Multiplication Implementation
 		scale.setToScaling(xScale, yScale);
