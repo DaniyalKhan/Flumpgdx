@@ -23,7 +23,6 @@ public class RenderExample {
     }
 
     public static class FlumpAnimations extends ApplicationAdapter {
-
         FlumpLibraryFile file;
         FlumpAnimation animation;
 
@@ -40,7 +39,7 @@ public class RenderExample {
             batch = new SpriteBatch();
             file =  FlumpLibraryFile.deserialize("examples/assets/mascot/library.json");
             animation = MovieMaker.make(file, movieWalk);
-//            animation.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+            animation.applyTransformation(new Matrix3().translate(400, 300));
             renderer = new ShapeRenderer();
         }
 
@@ -48,7 +47,9 @@ public class RenderExample {
         public void render () {
             Gdx.gl.glClearColor(1, 1, 1, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            animation.update(Gdx.graphics.getDeltaTime(), new Matrix3().translate(400, 300));
+
+            animation.update(Gdx.graphics.getDeltaTime());
+
             renderer.begin(ShapeRenderer.ShapeType.Line);
             renderer.setColor(0, 0, 0, 1);
             renderer.line(Gdx.graphics.getWidth()/2, 0, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight());
@@ -56,8 +57,6 @@ public class RenderExample {
             renderer.end();
 
             batch.begin();
-//            animation.rotate((float) (Math.PI * Gdx.graphics.getDeltaTime()));
-//            animation.translate(0, 50 * Gdx.graphics.getDeltaTime());
             animation.draw(batch);
             batch.end();
         }

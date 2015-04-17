@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
 import com.bigwoah.flumpgdx.library.FlumpKeyFrame;
 import com.bigwoah.flumpgdx.library.FlumpLayer;
+import com.bigwoah.flumpgdx.utils.TextureCache;
 
 import static com.badlogic.gdx.graphics.g2d.Batch.*;
 
@@ -140,7 +141,7 @@ public class FlumpDisplay {
 				p.set(cosy * p.x + sinx * p.y, - siny * p.x + cosx * p.y);
 			}
 		}
-		for (Vector2 p: pos) {
+		for (Vector2 p : pos) {
 			p.add(xLoc, yLoc).mul(transform);
 		}
 

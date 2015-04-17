@@ -3,14 +3,22 @@ package com.bigwoah.flumpgdx.display;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.bigwoah.flumpgdx.library.FlumpLayer;
 
 
 public class FlumpAnimation extends FlumpDisplay {
 
+	private static final Pool<Matrix3> MATRIX_POOL = new Pool<Matrix3>() {
+		@Override
+		protected Matrix3 newObject() {
+			return new Matrix3();
+		}
+	};
+
 	private final Array<FlumpDisplay> displayLayers;
-	private final Matrix3 layerTransform; //used to temporary calculate any user defined transforms
-	private float tx, ty; //animation might recursively apply translations if animations hold other animations
+	private final Matrix3 layerTransform; //recursive transformation for animation layers
+	private Matrix3 userTransform;
 	private int frameRate;
 	private float frame;
 
@@ -21,20 +29,30 @@ public class FlumpAnimation extends FlumpDisplay {
 		layerTransform = new Matrix3();
 	}
 
+	public void applyTransformation(Matrix3 transformation) {
+		this.userTransform = transformation;
+	}
+
+	public void setLayerTransform() {
+		if (reference != null) {
+			/* Right now we only translate recursively,
+			 * this might need to be changed if animations recursively apply scales and/or rotations
+			 */
+			getAttributes(this, 0);
+			layerTransform.setToTranslation(xPivot + xLoc, -yPivot + yLoc);
+		}
+	}
+
+	public Matrix3 getTransformation() {
+		return userTransform;
+	}
+
 	public void addDisplay(FlumpDisplay display) {
 		displayLayers.add(display);
 	}
 
-	public void setframeRate(int frameRate) {
+	public void setFrameRate(int frameRate) {
 		this.frameRate = frameRate;
-	}
-
-	public void setLayerTransform() {
-		/* TODO if animation recursively applies transformations, get them here
-		(right now we only handle translation) */
-		getAttributes(this, 0);
-		tx = xPivot + xLoc;
-		ty = -yPivot + yLoc;
 	}
 
 	/**
@@ -44,39 +62,28 @@ public class FlumpAnimation extends FlumpDisplay {
 	public void update(float delta) {
 		frame += delta * frameRate;
 		if (frame > maxFrameCount()) frame = 0;
-		update((int)frame, null);
-	}
-
-	/**
-	 * Update the animation, optionally providing a transformation matrix so scale/rotate/translate the animation
-	 * @param delta The time between update events, in seconds
-	 * @param transform An optional transformation matrix for user defined transformations
-	 */
-	public void update(float delta, Matrix3 transform) {
-		frame += delta * frameRate;
-		if (frame > maxFrameCount()) frame = 0;
-		update((int)frame, transform);
+		update((int)frame, userTransform);
 	}
 
 	@Override
 	protected void update(int frame, Matrix3 transform) {
-		/* Add the user defined transformation to recursive translation on this animation, if any.
-		 * Do not modify the original transform instance given, since it may affect other layers, if some are
-		 * animations and some are regular layers!
-		 */
-		/* NOTE: Since the display layer class currently multiples the given transform matrix at the end,
- 		 * its ok to simply combine the layer and user transform matrix when the layer matrix only translates,
- 		 * and do everything in one single update call.
- 		 * When animations recursively scale and rotate, we might have to do 2 passes.
- 		 * The first calculates all the flump coordinates, then a second pass to apply any user transforms
-		 */
 		if (transform != null) {
-			layerTransform.set(transform).translate(tx, ty);
+			/* Get a temporary matrix so we can multiply by layer matrix in so we don't alter
+			 * the given transformation matrix or the layer transformation matrix.
+			 * The order of multiplication is important, we need to multiply by the layer transformation BEFORE
+			 * we apply any user defined transformations (the final vertices of the displays are left multiplied
+			 * by the final product matrix).
+			 */
+			Matrix3 tmp = MATRIX_POOL.obtain().set(transform).mul(layerTransform);
+			for (FlumpDisplay display: displayLayers) {
+				display.update(frame, tmp);
+			}
+			MATRIX_POOL.free(tmp.idt());
 		} else {
-			layerTransform.setToTranslation(tx, ty);
-		}
-		for (FlumpDisplay display: displayLayers) {
-			display.update(frame, layerTransform);
+			//Only create a temporary matrix if we need to apply any layer changes
+			for (FlumpDisplay display: displayLayers) {
+				display.update(frame, transform);
+			}
 		}
 	}
 

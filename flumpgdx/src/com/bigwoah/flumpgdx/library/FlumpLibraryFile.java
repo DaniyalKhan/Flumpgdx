@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.bigwoah.flumpgdx.display.FlumpDisplayTexture;
-import com.bigwoah.flumpgdx.display.TextureCache;
+import com.bigwoah.flumpgdx.utils.TextureCache;
 
 
 public class FlumpLibraryFile {

@@ -1,6 +1,7 @@
-package com.bigwoah.flumpgdx.display;
+package com.bigwoah.flumpgdx.utils;
 
 import com.badlogic.gdx.utils.ObjectMap;
+import com.bigwoah.flumpgdx.display.FlumpDisplayTexture;
 
 public class TextureCache {
 
