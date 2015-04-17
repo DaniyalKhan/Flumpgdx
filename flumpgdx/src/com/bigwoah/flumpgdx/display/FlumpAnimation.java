@@ -20,11 +20,9 @@ public class FlumpAnimation extends FlumpDisplay {
 	private final Matrix3 layerTransform; //recursive transformation for animation layers
 	private Matrix3 userTransform;
 	private int frameRate;
-	private float frame;
 
 	public FlumpAnimation(FlumpLayer layer) {
 		super(layer);
-		this.frame = 0;
 		displayLayers = new Array<FlumpDisplay>();
 		layerTransform = new Matrix3();
 	}
@@ -60,13 +58,11 @@ public class FlumpAnimation extends FlumpDisplay {
 	 * @param delta The time between update events, in seconds
 	 */
 	public void update(float delta) {
-		frame += delta * frameRate;
-		if (frame > maxFrameCount()) frame = 0;
-		update((int)frame, userTransform);
+		update(delta * frameRate, userTransform);
 	}
 
 	@Override
-	protected void update(int frame, Matrix3 transform) {
+	protected void update(float deltaFrames, Matrix3 transform) {
 		if (transform != null) {
 			/* Get a temporary matrix so we can multiply by layer matrix in so we don't alter
 			 * the given transformation matrix or the layer transformation matrix.
@@ -76,13 +72,13 @@ public class FlumpAnimation extends FlumpDisplay {
 			 */
 			Matrix3 tmp = MATRIX_POOL.obtain().set(transform).mul(layerTransform);
 			for (FlumpDisplay display: displayLayers) {
-				display.update(frame, tmp);
+				display.update(deltaFrames, tmp);
 			}
 			MATRIX_POOL.free(tmp.idt());
 		} else {
 			//Only create a temporary matrix if we need to apply any layer changes
 			for (FlumpDisplay display: displayLayers) {
-				display.update(frame, transform);
+				display.update(deltaFrames, transform);
 			}
 		}
 	}
@@ -96,22 +92,6 @@ public class FlumpAnimation extends FlumpDisplay {
 		for (FlumpDisplay display: displayLayers) {
 			display.draw(batch);
 		}
-	}
-
-	/**
-	 * Calculate the maximum number of frames any of the display layers last
-	 * @return The max frame number
-	 */
-	@Override
-	public int maxFrameCount() {
-		if (displayLayers == null || displayLayers.size == 0) return 0;
-		if (numFrames < 0) {
-			for (FlumpDisplay display : displayLayers) {
-				if (display.maxFrameCount() > numFrames)
-					numFrames = display.maxFrameCount();
-			}
-		}
-		return numFrames;
 	}
 
 }

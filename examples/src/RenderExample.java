@@ -34,12 +34,15 @@ public class RenderExample {
         SpriteBatch batch;
         ShapeRenderer renderer;
 
+        Matrix3 transform;
+
         @Override
         public void create () {
             batch = new SpriteBatch();
             file =  FlumpLibraryFile.deserialize("examples/assets/mascot/library.json");
             animation = MovieMaker.make(file, movieWalk);
-            animation.applyTransformation(new Matrix3().translate(400, 300));
+            transform = new Matrix3().translate(400, 300);
+            animation.applyTransformation(transform);
             renderer = new ShapeRenderer();
         }
 
@@ -49,7 +52,6 @@ public class RenderExample {
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             animation.update(Gdx.graphics.getDeltaTime());
-
             renderer.begin(ShapeRenderer.ShapeType.Line);
             renderer.setColor(0, 0, 0, 1);
             renderer.line(Gdx.graphics.getWidth()/2, 0, Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight());

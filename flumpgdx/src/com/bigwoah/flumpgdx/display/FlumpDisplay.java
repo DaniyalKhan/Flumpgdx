@@ -19,40 +19,28 @@ public class FlumpDisplay {
 	protected static float xPivot, yPivot, xSkew, ySkew, xScale, yScale, xLoc, yLoc; 
 	
 	protected Vector2[] pos = new Vector2[4];
-	private int keyframe; //current keyframe
-	protected int numFrames;
+	private int keyFrame; //current keyFrame
+	private float frameNumber; //the frames elapsed in the current keyframe
 	boolean overElapsed = false;
 
 	protected final FlumpLayer reference;
 		
 	public FlumpDisplay(FlumpLayer layer) {
 		this.reference = layer;
-		this.numFrames = -1;
+		this.keyFrame = 0;
+		this.frameNumber = 0;
 		for (int i = 0; i < pos.length; i++) {
 			pos[i] = new Vector2();
 		}
 	}
 	
 	protected FlumpDisplayTexture getDisplayTexture() {
-		return TextureCache.obtain().get(reference.keyframes[keyframe].ref);
-	}
-
-	/**
-	 * Get the duration of this layer by summing all the frame durations
-	 * @return The sum of the frame durations for this layer
-	 */
-	public int maxFrameCount() {
-		if (numFrames < 0) {
-			for (FlumpKeyFrame keyframe : reference.keyframes) {
-				numFrames += keyframe.duration;
-			}
-		}
-		return numFrames;
+		return TextureCache.obtain().get(reference.keyframes[keyFrame].ref);
 	}
 	
 	protected static void getAttributes(FlumpDisplay source, float interpolation) {
 		FlumpKeyFrame[] keyframes = source.reference.keyframes;
-		int frame = source.keyframe;
+		int frame = source.keyFrame;
 		int nextFrame = (frame + 1) % keyframes.length;
  		FlumpKeyFrame current = keyframes[frame];
 		if (interpolation == 0) {
@@ -79,21 +67,17 @@ public class FlumpDisplay {
 		}
 	}
 	
-	protected void update(int frame, Matrix3 transform) {
+	protected void update(float deltaFrames, Matrix3 transform) {
 		if (reference == null) throw new IllegalStateException("FlumpDisplayLayer is empty on update!");
-		keyframe = 0;
-		overElapsed = frame > maxFrameCount();
-		if (overElapsed) return;
-		while(frame >= reference.keyframes[keyframe].duration && keyframe < reference.keyframes.length - 1) {
-			frame -= reference.keyframes[keyframe].duration;
-			keyframe++;
+		frameNumber += deltaFrames;
+		FlumpKeyFrame keyFrames[] = reference.keyframes;
+		while(frameNumber >= keyFrames[keyFrame].duration) {
+			frameNumber -= keyFrames[keyFrame].duration;
+			keyFrame++;
+			if (keyFrame == keyFrames.length) keyFrame = 0;
 		}
-		float interpolation = ((float) frame) / reference.keyframes[keyframe].duration;
-		//last frame in the animation, no interpolation
-		if (keyframe == reference.keyframes.length - 1) {
-			interpolation = 0;
-		}
-		float ease = reference.keyframes[keyframe].ease;
+		float interpolation =  frameNumber / reference.keyframes[keyFrame].duration;
+		float ease = reference.keyframes[keyFrame].ease;
 		if (ease != 0) {
 			float t;
 			if (ease < 0) {
