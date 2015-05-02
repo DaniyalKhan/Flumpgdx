@@ -13,18 +13,20 @@ import static com.badlogic.gdx.graphics.g2d.Batch.*;
 
 public class FlumpDisplay {
 
-	private static final float[] DISPLAY_VERTICES = new float[20];
-	private static final float DEFAULT_VERTEX_COLOR = Color.WHITE.toFloatBits(); 
-	
-	protected static float xPivot, yPivot, xSkew, ySkew, xScale, yScale, xLoc, yLoc; 
-	
-	protected Vector2[] pos = new Vector2[4];
+	private static final int NUM_VERTICES = 20;
+	private static final float DEFAULT_VERTEX_COLOR = Color.WHITE.toFloatBits();
+	protected static float xPivot, yPivot, xSkew, ySkew, xScale, yScale, xLoc, yLoc;
+
 	private int keyFrame; //current keyFrame
 	private float frameNumber; //the frames elapsed in the current keyframe
-	boolean overElapsed = false;
+	private float[] vertices;
+	private Vector2[] pos = new Vector2[4];
+	protected FlumpLayer reference;
 
-	protected final FlumpLayer reference;
-		
+	protected FlumpDisplay() {
+
+	}
+
 	public FlumpDisplay(FlumpLayer layer) {
 		this.reference = layer;
 		this.keyFrame = 0;
@@ -32,6 +34,28 @@ public class FlumpDisplay {
 		for (int i = 0; i < pos.length; i++) {
 			pos[i] = new Vector2();
 		}
+		vertices = new float[NUM_VERTICES];
+		FlumpDisplayTexture t = getDisplayTexture();
+		float u = t.getU();
+		float u2 = t.getU2();
+		float v = t.getV();
+		float v2 = t.getV2();
+		vertices[U1] = u;
+		vertices[V1] = v2;
+		vertices[U2] = u;
+		vertices[V2] = v;
+		vertices[U3] = u2;
+		vertices[V3] = v;
+		vertices[U4] = u2;
+		vertices[V4] = v2;
+		setColor(DEFAULT_VERTEX_COLOR);
+	}
+
+	protected void setColor(float color) {
+		vertices[C1] = color;
+		vertices[C2] = color;
+		vertices[C3] = color;
+		vertices[C4] = color;
 	}
 	
 	protected FlumpDisplayTexture getDisplayTexture() {
@@ -146,35 +170,15 @@ public class FlumpDisplay {
 	}
 	
 	void draw(SpriteBatch batch) {
-		if (overElapsed) return;
-		FlumpDisplayTexture t = getDisplayTexture();
-		float u = t.getU();
-		float u2 = t.getU2();
-		float v = t.getV();
-		float v2 = t.getV2();
-		
-		DISPLAY_VERTICES[U1] = u;
-		DISPLAY_VERTICES[V1] = v2;
-		DISPLAY_VERTICES[U2] = u;
-		DISPLAY_VERTICES[V2] = v;
-		DISPLAY_VERTICES[U3] = u2;
-		DISPLAY_VERTICES[V3] = v;
-		DISPLAY_VERTICES[U4] = u2;
-		DISPLAY_VERTICES[V4] = v2;
-		DISPLAY_VERTICES[C1] = DEFAULT_VERTEX_COLOR;
-		DISPLAY_VERTICES[C2] = DEFAULT_VERTEX_COLOR;
-		DISPLAY_VERTICES[C3] = DEFAULT_VERTEX_COLOR;
-		DISPLAY_VERTICES[C4] = DEFAULT_VERTEX_COLOR;
-		DISPLAY_VERTICES[X1] = pos[0].x;
-		DISPLAY_VERTICES[X2] = pos[1].x;
-		DISPLAY_VERTICES[X3] = pos[2].x;
-		DISPLAY_VERTICES[X4] = pos[3].x;
-		DISPLAY_VERTICES[Y1] = pos[0].y;
-		DISPLAY_VERTICES[Y2] = pos[1].y;
-		DISPLAY_VERTICES[Y3] = pos[2].y;
-		DISPLAY_VERTICES[Y4] = pos[3].y;
-		
-		batch.draw(t.getTexture(), DISPLAY_VERTICES, 0, DISPLAY_VERTICES.length);
+		vertices[X1] = pos[0].x;
+		vertices[X2] = pos[1].x;
+		vertices[X3] = pos[2].x;
+		vertices[X4] = pos[3].x;
+		vertices[Y1] = pos[0].y;
+		vertices[Y2] = pos[1].y;
+		vertices[Y3] = pos[2].y;
+		vertices[Y4] = pos[3].y;
+		batch.draw(getDisplayTexture().getTexture(), vertices, 0, NUM_VERTICES);
 		
 	}
 

@@ -22,9 +22,16 @@ public class FlumpAnimation extends FlumpDisplay {
 	private int frameRate;
 
 	public FlumpAnimation(FlumpLayer layer) {
-		super(layer);
+		reference = layer;
 		displayLayers = new Array<FlumpDisplay>();
 		layerTransform = new Matrix3();
+	}
+
+	@Override
+	public void setColor(float color) {
+		for (FlumpDisplay display: displayLayers) {
+			display.setColor(color);
+		}
 	}
 
 	public void applyTransformation(Matrix3 transformation) {
@@ -64,7 +71,7 @@ public class FlumpAnimation extends FlumpDisplay {
 	@Override
 	protected void update(float deltaFrames, Matrix3 transform) {
 		if (transform != null) {
-			/* Get a temporary matrix so we can multiply by layer matrix in so we don't alter
+			/* Get a temporary matrix so we can multiply by layer matrix so we don't alter
 			 * the given transformation matrix or the layer transformation matrix.
 			 * The order of multiplication is important, we need to multiply by the layer transformation BEFORE
 			 * we apply any user defined transformations (the final vertices of the displays are left multiplied
