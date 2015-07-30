@@ -1,8 +1,8 @@
-package com.bigwoah.flumpgdx.display;
+package com.flumpgdx.display;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.bigwoah.flumpgdx.library.FlumpTextureRegion;
+import com.flumpgdx.library.FlumpTextureRegion;
 
 public class FlumpDisplayTexture extends TextureRegion {
 

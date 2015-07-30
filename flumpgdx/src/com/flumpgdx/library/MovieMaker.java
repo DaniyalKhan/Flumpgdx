@@ -1,7 +1,7 @@
-package com.bigwoah.flumpgdx.library;
+package com.flumpgdx.library;
 
-import com.bigwoah.flumpgdx.display.FlumpAnimation;
-import com.bigwoah.flumpgdx.display.FlumpDisplay;
+import com.flumpgdx.display.FlumpAnimation;
+import com.flumpgdx.display.FlumpDisplay;
 
 public class MovieMaker {
 	

@@ -1,4 +1,4 @@
-package com.bigwoah.flumpgdx.library;
+package com.flumpgdx.library;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.bigwoah.flumpgdx.display.FlumpDisplayTexture;
-import com.bigwoah.flumpgdx.utils.TextureCache;
+import com.flumpgdx.display.FlumpDisplayTexture;
+import com.flumpgdx.utils.TextureCache;
 
 
 public class FlumpLibraryFile {

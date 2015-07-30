@@ -1,4 +1,4 @@
-package com.bigwoah.flumpgdx.library;
+package com.flumpgdx.library;
 
 
 

@@ -1,13 +1,13 @@
-package com.bigwoah.flumpgdx.display;
+package com.flumpgdx.display;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
-import com.bigwoah.flumpgdx.library.FlumpKeyFrame;
-import com.bigwoah.flumpgdx.library.FlumpLayer;
-import com.bigwoah.flumpgdx.utils.TextureCache;
+import com.flumpgdx.library.FlumpKeyFrame;
+import com.flumpgdx.library.FlumpLayer;
+import com.flumpgdx.utils.TextureCache;
 
 import static com.badlogic.gdx.graphics.g2d.Batch.*;
 

@@ -1,10 +1,10 @@
-package com.bigwoah.flumpgdx.display;
+package com.flumpgdx.display;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import com.bigwoah.flumpgdx.library.FlumpLayer;
+import com.flumpgdx.library.FlumpLayer;
 
 
 public class FlumpAnimation extends FlumpDisplay {
