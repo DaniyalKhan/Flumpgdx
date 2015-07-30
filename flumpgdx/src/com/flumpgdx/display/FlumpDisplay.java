@@ -22,12 +22,17 @@ public class FlumpDisplay {
 	private float[] vertices;
 	private Vector2[] pos = new Vector2[4];
 	protected FlumpLayer reference;
+	private boolean dirty;
+
+	//user defined transformations
+	protected Matrix3 userTransform;
 
 	protected FlumpDisplay() {
-
+		userTransform = new Matrix3();
 	}
 
 	public FlumpDisplay(FlumpLayer layer) {
+		this();
 		this.reference = layer;
 		this.keyFrame = 0;
 		this.frameNumber = 0;
@@ -49,6 +54,22 @@ public class FlumpDisplay {
 		vertices[U4] = u2;
 		vertices[V4] = v2;
 		setColor(DEFAULT_VERTEX_COLOR);
+		flumpUpdate(0);
+	}
+
+	protected void setTransform(Matrix3 transformation) {
+		userTransform.set(transformation);
+	}
+
+	/**
+	 * Transform the display's current vertex positions by the given transformation matrix
+	 * @param transformation
+	 */
+	public void applyTransform(Matrix3 transformation) {
+		for (Vector2 p : pos) {
+			p.mul(transformation);
+		}
+		dirty = true;
 	}
 
 	protected void setColor(float color) {
@@ -91,8 +112,9 @@ public class FlumpDisplay {
 		}
 	}
 	
-	protected void update(float deltaFrames, Matrix3 transform) {
+	protected void flumpUpdate(float deltaFrames) {
 		if (reference == null) throw new IllegalStateException("FlumpDisplayLayer is empty on update!");
+		dirty = true;
 		frameNumber += deltaFrames;
 		FlumpKeyFrame keyFrames[] = reference.keyframes;
 		while(frameNumber >= keyFrames[keyFrame].duration) {
@@ -149,8 +171,14 @@ public class FlumpDisplay {
 				p.set(cosy * p.x + sinx * p.y, - siny * p.x + cosx * p.y);
 			}
 		}
-		for (Vector2 p : pos) {
-			p.add(xLoc, yLoc).mul(transform);
+		if (userTransform != null) {
+			for (Vector2 p : pos) {
+				p.add(xLoc, yLoc).mul(userTransform);
+			}
+		} else {
+			for (Vector2 p : pos) {
+				p.add(xLoc, yLoc);
+			}
 		}
 
 		/****************************************************
@@ -166,18 +194,20 @@ public class FlumpDisplay {
 			pos[i].mul(scale).mul(rotation).mul(translation);
 		}
 		*****************************************************/
-		
+
 	}
 	
 	void draw(SpriteBatch batch) {
-		vertices[X1] = pos[0].x;
-		vertices[X2] = pos[1].x;
-		vertices[X3] = pos[2].x;
-		vertices[X4] = pos[3].x;
-		vertices[Y1] = pos[0].y;
-		vertices[Y2] = pos[1].y;
-		vertices[Y3] = pos[2].y;
-		vertices[Y4] = pos[3].y;
+		if (dirty) {
+			vertices[X1] = pos[0].x;
+			vertices[X2] = pos[1].x;
+			vertices[X3] = pos[2].x;
+			vertices[X4] = pos[3].x;
+			vertices[Y1] = pos[0].y;
+			vertices[Y2] = pos[1].y;
+			vertices[Y3] = pos[2].y;
+			vertices[Y4] = pos[3].y;
+		}
 		batch.draw(getDisplayTexture().getTexture(), vertices, 0, NUM_VERTICES);
 		
 	}

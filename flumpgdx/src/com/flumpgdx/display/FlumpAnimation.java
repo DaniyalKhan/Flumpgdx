@@ -18,7 +18,6 @@ public class FlumpAnimation extends FlumpDisplay {
 
 	private final Array<FlumpDisplay> displayLayers;
 	private final Matrix3 layerTransform; //recursive transformation for animation layers
-	private Matrix3 userTransform;
 	private int frameRate;
 
 	public FlumpAnimation(FlumpLayer layer) {
@@ -34,8 +33,17 @@ public class FlumpAnimation extends FlumpDisplay {
 		}
 	}
 
-	public void applyTransformation(Matrix3 transformation) {
-		this.userTransform = transformation;
+	/**
+	 * Set the transformation that will be applied for subsequent update() calls
+	 * @param transformation
+	 */
+	@Override
+	public void setTransform(Matrix3 transformation) {
+		//use the user transform matrix to also encapsulate any recursive transforms on this animation
+		userTransform.set(transformation).mul(layerTransform);
+		for (FlumpDisplay display: displayLayers) {
+			display.setTransform(userTransform);
+		}
 	}
 
 	public void setLayerTransform() {
@@ -48,10 +56,6 @@ public class FlumpAnimation extends FlumpDisplay {
 		}
 	}
 
-	public Matrix3 getTransformation() {
-		return userTransform;
-	}
-
 	public void addDisplay(FlumpDisplay display) {
 		displayLayers.add(display);
 	}
@@ -60,34 +64,45 @@ public class FlumpAnimation extends FlumpDisplay {
 		this.frameRate = frameRate;
 	}
 
+//	/**
+//	 * Update the animation
+//	 * @param delta The time between update events, in seconds
+//	 */
+//	public void update(float delta) {
+//		update(delta * frameRate);
+//	}
+
 	/**
 	 * Update the animation
 	 * @param delta The time between update events, in seconds
 	 */
 	public void update(float delta) {
-		update(delta * frameRate, userTransform);
+		flumpUpdate(delta * frameRate);
 	}
 
 	@Override
-	protected void update(float deltaFrames, Matrix3 transform) {
-		if (transform != null) {
-			/* Get a temporary matrix so we can multiply by layer matrix so we don't alter
-			 * the given transformation matrix or the layer transformation matrix.
-			 * The order of multiplication is important, we need to multiply by the layer transformation BEFORE
-			 * we apply any user defined transformations (the final vertices of the displays are left multiplied
-			 * by the final product matrix).
-			 */
-			Matrix3 tmp = MATRIX_POOL.obtain().set(transform).mul(layerTransform);
-			for (FlumpDisplay display: displayLayers) {
-				display.update(deltaFrames, tmp);
-			}
-			MATRIX_POOL.free(tmp.idt());
-		} else {
-			//Only create a temporary matrix if we need to apply any layer changes
-			for (FlumpDisplay display: displayLayers) {
-				display.update(deltaFrames, transform);
-			}
+	protected void flumpUpdate(float deltaFrames) {
+		for (FlumpDisplay display: displayLayers) {
+			display.flumpUpdate(deltaFrames);
 		}
+//		if (setTransform != null) {
+//			/* Get a temporary matrix so we can multiply by layer matrix so we don't alter
+//			 * the given transformation matrix or the layer transformation matrix.
+//			 * The order of multiplication is important, we need to multiply by the layer transformation BEFORE
+//			 * we apply any user defined transformations (the final vertices of the displays are left multiplied
+//			 * by the final product matrix).
+//			 */
+//			Matrix3 tmp = MATRIX_POOL.obtain().set(setTransform).mul(layerTransform);
+//			for (FlumpDisplay display: displayLayers) {
+//				display.update(deltaFrames, tmp);
+//			}
+//			MATRIX_POOL.free(tmp.idt());
+//		} else {
+//			//Only create a temporary matrix if we need to apply any layer changes
+//			for (FlumpDisplay display: displayLayers) {
+//				display.update(deltaFrames, setTransform);
+//			}
+//		}
 	}
 
 	/**
