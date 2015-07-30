@@ -206,6 +206,7 @@ public class FlumpDisplay {
 			vertices[Y2] = pos[1].y;
 			vertices[Y3] = pos[2].y;
 			vertices[Y4] = pos[3].y;
+			dirty = false;
 		}
 		batch.draw(getDisplayTexture().getTexture(), vertices, 0, NUM_VERTICES);
 		
