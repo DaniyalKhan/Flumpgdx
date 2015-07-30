@@ -11,6 +11,9 @@ import com.flumpgdx.utils.TextureCache;
 
 import static com.badlogic.gdx.graphics.g2d.Batch.*;
 
+/**
+ * Represents an individual image layer
+ */
 public class FlumpDisplay {
 
 	private static final int NUM_VERTICES = 20;
@@ -61,11 +64,7 @@ public class FlumpDisplay {
 		userTransform.set(transformation);
 	}
 
-	/**
-	 * Transform the display's current vertex positions by the given transformation matrix
-	 * @param transformation
-	 */
-	public void applyTransform(Matrix3 transformation) {
+	protected void transform(Matrix3 transformation) {
 		for (Vector2 p : pos) {
 			p.mul(transformation);
 		}

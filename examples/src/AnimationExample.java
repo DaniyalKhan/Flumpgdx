@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix3;
-import com.bigwoah.flumpgdx.display.FlumpAnimation;
-import com.bigwoah.flumpgdx.library.FlumpLibraryFile;
-import com.bigwoah.flumpgdx.library.MovieMaker;
+import com.flumpgdx.display.FlumpAnimation;
+import com.flumpgdx.library.FlumpLibraryFile;
+import com.flumpgdx.library.MovieMaker;
 
-public class RenderExample {
+public class AnimationExample {
 
     public static void main(String[] args) {
 
@@ -42,7 +42,7 @@ public class RenderExample {
             file =  FlumpLibraryFile.deserialize("examples/assets/mascot/library.json");
             animation = MovieMaker.make(file, movieWalk);
             transform = new Matrix3().translate(400, 300);
-            animation.applyTransformation(transform);
+            animation.setTransform(transform);
             renderer = new ShapeRenderer();
         }
 
