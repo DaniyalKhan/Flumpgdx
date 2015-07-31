@@ -64,13 +64,6 @@ public class FlumpDisplay {
 		userTransform.set(transformation);
 	}
 
-	protected void transform(Matrix3 transformation) {
-		for (Vector2 p : pos) {
-			p.mul(transformation);
-		}
-		dirty = true;
-	}
-
 	protected void setColor(float color) {
 		vertices[C1] = color;
 		vertices[C2] = color;

@@ -37,15 +37,16 @@ public class FlumpSprite extends FlumpDisplay {
     }
 
     /**
-     * Set the transformation that will be applied
+     * Applies a transformation to all layers
      * @param transformation
      */
     @Override
-    public void transform(Matrix3 transformation) {
+    public void setTransform(Matrix3 transformation) {
         //use the user transform matrix to also encapsulate any recursive transforms on this layer group
         userTransform.set(transformation).mul(layerTransform);
         for (FlumpDisplay display: displayLayers) {
-            display.transform(userTransform);
+            display.setTransform(userTransform);
+            flumpUpdate(0);
         }
     }
 
