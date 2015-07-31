@@ -46,7 +46,7 @@ public class FlumpSprite extends FlumpDisplay {
         userTransform.set(transformation).mul(layerTransform);
         for (FlumpDisplay display: displayLayers) {
             display.setTransform(userTransform);
-            flumpUpdate(0);
+            display.flumpUpdate(0);
         }
     }
 
